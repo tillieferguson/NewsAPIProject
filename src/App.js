@@ -1,8 +1,9 @@
 import React from "react";
 import { Container, Header } from "semantic-ui-react";
-import { getSportsArticles, getEnterArticles, getTechArticles } from "./api.js";
-import { Button} from "semantic-ui-react";
+import { getSportsArticles, getEnterArticles, getTechArticles, doUserSearch } from "./api.js";
+import { Button, Form } from "semantic-ui-react";
 import { ArticleList } from "./components/Articles.js";
+import FormSearch from "./components/Form.js";
 
 
 
@@ -11,11 +12,13 @@ class App extends React.Component {
     entertainment: [],
     sports: [],
     entertainment: [],
+    articles: [],
     showenter: false,
     showtech: false,
     showsport: false,
-    loading: false,
-    apiError: ""
+    showsearched: false,
+    apiError: "",
+    searchfield: ""
   };
 
 
@@ -42,11 +45,19 @@ class App extends React.Component {
       this.setState({ apiError: "Could not find tech articles" });
     }
   }
+  
 
-  showEnter = () => {
-    this.setState({ showenter: true })
+  searcharticles = async search => {
+    try {
+      const response = await doUserSearch(search);
+      this.setState({
+        articles: response.articles,
+        searchfield: search,
+      });
+    } catch (error) {
+      this.setState({ apiError: "Could not find any articles" });
+    }
   }
-
 
   async componentDidMount() {
     await Promise.all([
@@ -60,13 +71,17 @@ class App extends React.Component {
     console.log(name);
     switch (name) {
       case "sports":
-        this.setState({ showsport: !this.state.showsport, showtech: false, showenter: false });
+        this.setState({ showsport: !this.state.showsport, showtech: false, showenter: false, showsearched: false });
         break;
       case "tech":
-        this.setState({ showtech: !this.state.showtech, showsport: false, showenter: false });
+        this.setState({ showtech: !this.state.showtech, showsport: false, showenter: false, showsearched: false });
         break;
       case "enter":
-        this.setState({ showenter: !this.state.showenter, showtech: false, showsport: false });
+        this.setState({ showenter: !this.state.showenter, showtech: false, showsport: false, showsearched: false});
+        break;
+      case "search":
+
+        this.setState({ showsearched: !this.showsearched, showtech: false, showsport: false, showenter: false });
         break;
       default:
         return null;
@@ -78,7 +93,10 @@ class App extends React.Component {
     const {
       sports,
       tech,
+      articles,
+      showsearched,
       entertainment,
+      searchfield,
       showenter,
       showtech,
       showsport,
@@ -90,33 +108,42 @@ class App extends React.Component {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <div class="ui blue inverted segment">
+        <p style={{ textAlign: "center" }}>
+          Powered by <a href="https://newsapi.org/">NewsAPI.org</a>
+        </p>
+        <div className="ui blue inverted segment">
           <Header as="h2" style={{ textAlign: "center", margin: 20 }}>
             Be Part of It!
         </Header>
-          <div class="ui two column centered grid">
-            <div class="ui buttons" margin="auto">
+          <div className="ui two column centered grid">
+            <div className="ui buttons" margin="auto">
               <Button color='grey' onClick={() => this.hideComponent("sports")}>
-                Sports News
+                Top Sports News
           </Button>
-              <div class="or"></div>
+              <div className="or"></div>
               <Button color='grey' onClick={() => this.hideComponent("tech")}>
-                Technology News
+                Top Technology News
           </Button>
-              <div class="or"></div>
+              <div className="or"></div>
               <Button color='grey' onClick={() => this.hideComponent("enter")}>
-                Entertainment News
+                Top Entertainment News
           </Button>
             </div>
           </div>
           <br></br>
+          <br></br>
+          <FormSearch searcharticles={this.searcharticles} />
+          
         </div>
+        
 
 
-
+        {articles.length > 0 && <ArticleList articles={articles} />}
         {showenter && entertainment.length > 0 && <ArticleList articles={entertainment} />}
         {showtech && tech.length > 0 && <ArticleList articles={tech} />}
         {showsport && sports.length > 0 && <ArticleList articles={sports} />}
+        {articles.length > 0 && <ArticleList articles={articles} />}
+
         {apiError && <p>Could not fetch any articles. Please try again.</p>}
 
 

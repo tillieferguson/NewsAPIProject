@@ -19,7 +19,7 @@ const Article = props => {
             <List.Description style={{ margin: "20px 0" }}>
               {article.description}
             </List.Description>
-            <p>{article.publishedAt.split("T")[0]}</p>
+            <p>{article.publishedAt.split("T")[0]} – {article.source.name}</p>
           </Grid.Column>
 
         </Grid>
@@ -45,7 +45,7 @@ const Article = props => {
           <List.Description style={{ margin: "20px 0" }}>
             {article.description}
           </List.Description>
-          <p>{article.publishedAt.split("T")[0]}</p>
+          <p>{article.publishedAt.split("T")[0]} – {article.source.name}</p>
         </Grid.Column>
 
       </Grid>

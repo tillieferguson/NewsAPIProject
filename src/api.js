@@ -24,3 +24,11 @@ export const getTechArticles = async () => {
   return json;
 };
 
+export const doUserSearch= async(q) =>{
+  const response = await fetch(
+    `http://newsapi.org/v2/top-headlines?country=us&q=${q}&category=technology&category=entertainment&category=sports&apiKey=${NEWS_API_KEY}`
+  );
+  const json = await response.json();
+  return json;
+}
+
